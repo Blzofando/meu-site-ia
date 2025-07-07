@@ -1,143 +1,148 @@
-/* Root Container */
-#root {
-  max-width: 1280px;
+/* --- Importação de Fontes do Google --- */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;700&family=Roboto:wght@300;400;500&display=swap');
+
+/* --- Reset Básico e Variáveis de Cor --- */
+:root {
+  --cor-fundo: #121212;
+  --cor-fundo-container: #1e1e1e;
+  --cor-texto-principal: #e0e0e0;
+  --cor-texto-secundario: #a0a0a0;
+  --cor-borda: #333333;
+  --cor-acento-principal: #c5a453; /* Dourado antigo, mais sutil */
+  --cor-acento-hover: #e6c16c;
+  --cor-sucesso: #2a9d8f;
+  --cor-erro: #e76f51;
+
+  --fonte-titulo: 'Cormorant Garamond', serif;
+  --fonte-corpo: 'Roboto', sans-serif;
+}
+
+body {
+  margin: 0;
+  font-family: var(--fonte-corpo);
+  background-color: var(--cor-fundo);
+  color: var(--cor-texto-principal);
+  line-height: 1.6;
+}
+
+/* --- Layout Geral do App --- */
+.app-container {
+  max-width: 1100px;
   margin: 0 auto;
   padding: 2rem;
-  text-align: center;
-}
-
-/* Logo */
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
-
-/* Animation for logo spinning */
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* Reduced motion preference for spinning */
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-
-/* Card styling */
-.card {
-  padding: 2em;
-}
-
-/* Styling for documentation link */
-.read-the-docs {
-  color: #888;
-}
-
-/* Modal Styles */
-.modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+footer {
+  margin-top: auto; /* Empurra o rodapé para o final */
+  padding-top: 2rem;
+  color: var(--cor-texto-secundario);
+  font-size: 0.9rem;
+  text-align: center;
+  border-top: 1px solid var(--cor-borda);
+}
+
+/* --- Estilos da Página Inicial --- */
+.homepage-container {
+  display: flex;
+  flex-direction: column;
   align-items: center;
-}
-
-.modal-content {
-  background: white;
-  padding: 20px;
-  border-radius: 5px;
   text-align: center;
-  width: 300px;
 }
 
-.modal button {
-  margin-top: 10px;
-  padding: 10px;
-  background-color: #4CAF50;
-  color: white;
-  border: none;
+.homepage-header {
+  margin-top: 5vh;
+  margin-bottom: 5vh;
+}
+
+.homepage-header h1 {
+  font-family: var(--fonte-titulo);
+  font-size: clamp(2.5rem, 10vw, 5.5rem); /* Tamanho de fonte responsivo */
+  font-weight: 700;
+  color: var(--cor-acento-principal);
+  letter-spacing: 2px;
+  margin: 0;
+  text-transform: uppercase; /* Deixa o título mais imponente */
+}
+
+.homepage-header .subtitle {
+  font-size: clamp(1rem, 3vw, 1.25rem);
+  color: var(--cor-texto-secundario);
+  max-width: 600px;
+  margin: 1rem auto 0;
+}
+
+.homepage-main .cta-button {
+  font-family: var(--fonte-titulo);
+  font-size: 1.5rem;
+  font-weight: 700;
+  padding: 1rem 2.5rem;
   border-radius: 5px;
+  border: 2px solid var(--cor-acento-principal);
+  background-color: transparent;
+  color: var(--cor-acento-principal);
   cursor: pointer;
+  transition: all 0.3s ease;
+  letter-spacing: 1px;
 }
 
-.modal button:hover {
-  background-color: #45a049;
+.homepage-main .cta-button:hover {
+  background-color: var(--cor-acento-principal);
+  color: var(--cor-fundo);
+  transform: scale(1.05);
+  box-shadow: 0 5px 20px rgba(197, 164, 83, 0.2);
 }
 
-/* Form Container */
-.form-container {
-  margin-bottom: 20px;
+/* --- Seção de Ferramentas Individuais --- */
+.tools-section {
+  margin-top: 10vh;
+  width: 100%;
 }
 
-.generate-button {
-  padding: 10px 20px;
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  border-radius: 5px;
+.tools-section h2 {
+  font-family: var(--fonte-titulo);
+  font-size: 2rem;
+  color: var(--cor-texto-secundario);
+  border-bottom: 1px solid var(--cor-borda);
+  padding-bottom: 1rem;
+  margin-bottom: 2rem;
+  text-align: center; /* <<< CORREÇÃO AQUI */
+}
+
+.tools-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.tool-card {
+  background-color: var(--cor-fundo-container);
+  border: 1px solid var(--cor-borda);
+  border-radius: 8px;
+  padding: 1.5rem;
+  text-align: left; /* O texto dentro do card continua alinhado à esquerda */
   cursor: pointer;
-  font-size: 16px;
+  transition: all 0.3s ease;
+  color: var(--cor-texto-principal);
 }
 
-.generate-button:disabled {
-  background-color: #aaa;
-  cursor: not-allowed;
+.tool-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--cor-acento-principal);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
 }
 
-.result-container {
-  margin-top: 20px;
+.tool-card h3 {
+  font-family: var(--fonte-titulo);
+  font-size: 1.5rem;
+  margin: 0 0 0.5rem 0;
+  color: var(--cor-texto-principal);
 }
 
-.roteiro-result {
-  margin-top: 20px;
-}
-
-.result-actions {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 20px;
-}
-
-.result-actions button {
-  padding: 10px 20px;
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.result-actions button:hover {
-  background-color: #45a049;
-}
-
-.error-message {
-  color: red;
-  font-weight: bold;
-  margin-top: 20px;
-}
-
-.loading-message {
-  font-size: 16px;
-  color: #555;
+.tool-card p {
+  font-size: 1rem;
+  color: var(--cor-texto-secundario);
+  margin: 0;
 }
