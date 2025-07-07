@@ -1,3 +1,4 @@
+/* Root Container */
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -5,19 +6,23 @@
   text-align: center;
 }
 
+/* Logo */
 .logo {
   height: 6em;
   padding: 1.5em;
   will-change: filter;
   transition: filter 300ms;
 }
+
 .logo:hover {
   filter: drop-shadow(0 0 2em #646cffaa);
 }
+
 .logo.react:hover {
   filter: drop-shadow(0 0 2em #61dafbaa);
 }
 
+/* Animation for logo spinning */
 @keyframes logo-spin {
   from {
     transform: rotate(0deg);
@@ -27,16 +32,112 @@
   }
 }
 
+/* Reduced motion preference for spinning */
 @media (prefers-reduced-motion: no-preference) {
   a:nth-of-type(2) .logo {
     animation: logo-spin infinite 20s linear;
   }
 }
 
+/* Card styling */
 .card {
   padding: 2em;
 }
 
+/* Styling for documentation link */
 .read-the-docs {
   color: #888;
+}
+
+/* Modal Styles */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 5px;
+  text-align: center;
+  width: 300px;
+}
+
+.modal button {
+  margin-top: 10px;
+  padding: 10px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.modal button:hover {
+  background-color: #45a049;
+}
+
+/* Form Container */
+.form-container {
+  margin-bottom: 20px;
+}
+
+.generate-button {
+  padding: 10px 20px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.generate-button:disabled {
+  background-color: #aaa;
+  cursor: not-allowed;
+}
+
+.result-container {
+  margin-top: 20px;
+}
+
+.roteiro-result {
+  margin-top: 20px;
+}
+
+.result-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.result-actions button {
+  padding: 10px 20px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.result-actions button:hover {
+  background-color: #45a049;
+}
+
+.error-message {
+  color: red;
+  font-weight: bold;
+  margin-top: 20px;
+}
+
+.loading-message {
+  font-size: 16px;
+  color: #555;
 }
