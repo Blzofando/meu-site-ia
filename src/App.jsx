@@ -11,7 +11,7 @@ function Notification({ message, onDismiss }) {
   return <div className="notification">{message}</div>;
 }
 
-function CopyButton({ textToCopy, onCopy }) {
+function CopyButton({ textToCopy, onCopy, children }) {
   const handleCopy = () => {
     navigator.clipboard.writeText(textToCopy).then(() => {
       onCopy('Copiado!');
@@ -20,7 +20,7 @@ function CopyButton({ textToCopy, onCopy }) {
       onCopy('Erro ao copiar.');
     });
   };
-  return <button onClick={handleCopy} className="copy-button">Copiar</button>;
+  return <button onClick={handleCopy} className="copy-button">{children || 'Copiar'}</button>;
 }
 
 // --- Ferramentas Principais ---
@@ -104,7 +104,7 @@ function ImagePromptTool({ roteiro, onPromptsGenerated }) {
 }
 
 // Ferramenta 3: Gerador de Prompts de Movimento
-function MotionPromptTool({ imagePrompts }) {
+function MotionPromptTool({ imagePrompts, setNotification }) {
   const [motionPrompts, setMotionPrompts] = useState('');
   const [gerando, setGerando] = useState(false);
   const [erro, setErro] = useState(null);
@@ -131,7 +131,32 @@ function MotionPromptTool({ imagePrompts }) {
   
   const renderMotionPrompts = () => {
     if (!motionPrompts) return null;
-    return <textarea readOnly value={motionPrompts} rows="20" className="full-width-textarea" />;
+    const takes = motionPrompts.split('— Take').slice(1);
+    return takes.map((takeBlock, tIndex) => {
+        const prompts = takeBlock.split('— Prompt').slice(1);
+        const takeNumber = takeBlock.trim().split('\n')[0].trim();
+        return (
+            <div key={tIndex} className="take-container">
+                <h4>Take {takeNumber}</h4>
+                {prompts.map((promptBlock, pIndex) => {
+                    const lines = promptBlock.trim().split('\n');
+                    const promptTitle = `Prompt ${lines[0]}`;
+                    const movementLines = lines.slice(1);
+                    return (
+                        <div key={pIndex} className="prompt-item-motion">
+                            <h5>{promptTitle}</h5>
+                            {movementLines.map((moveLine, mIndex) => (
+                                <div key={mIndex} className="motion-item">
+                                    <p>{moveLine}</p>
+                                    <CopyButton textToCopy={moveLine.replace(/movimento \d: /, '').trim()} onCopy={setNotification} />
+                                </div>
+                            ))}
+                        </div>
+                    )
+                })}
+            </div>
+        )
+    });
   };
 
   return (
@@ -146,11 +171,6 @@ function MotionPromptTool({ imagePrompts }) {
         <div className="prompts-result">
           <h3>Prompts de Movimento Gerados:</h3>
           {renderMotionPrompts()}
-          <div className="actions-container">
-             <button onClick={() => window.open('https://labs.google/fx/pt/tools/whisk', '_blank')} className="secondary-button">
-                Testar no Whisk ↗️
-             </button>
-          </div>
         </div>
       )}
     </div>
@@ -166,8 +186,13 @@ function App() {
 
   const handleAudioRedirect = () => {
     if (!roteiro) return;
+
+    // LÓGICA CORRIGIDA: Remove a parte da "Análise do tema"
+    const parts = roteiro.split('---');
+    const cleanRoteiro = parts.length > 1 ? parts[1].trim() : roteiro.trim();
+
     const styleInstruction = "Narre o texto abaixo com voz jovem, envolvente e expressiva. Use tom de surpresa e curiosidade nos takes, variando a intensidade para destacar o absurdo das situações. Comece com energia e entusiasmo no hook da introdução e termine de forma descontraída, incentivando a participação do público no encerramento.";
-    const textToCopy = `[COLE ISTO NO CAMPO "STYLE INSTRUCTIONS"]\n${styleInstruction}\n\n[COLE ISTO NO CAMPO PRINCIPAL DE TEXTO]\n${roteiro}`;
+    const textToCopy = `[COLE ISTO NO CAMPO "STYLE INSTRUCTIONS"]\n${styleInstruction}\n\n[COLE ISTO NO CAMPO PRINCIPAL DE TEXTO]\n${cleanRoteiro}`;
     
     navigator.clipboard.writeText(textToCopy).then(() => {
       setNotification('Roteiro e instruções copiados!');
@@ -233,8 +258,14 @@ function App() {
             <div className="image-prompts-display">
                 <h3>Prompts de Imagem Gerados:</h3>
                 {renderImagePrompts()}
+                {/* FLUXO CORRIGIDO: Botão do Whisk aparece aqui */}
+                <div className="actions-container">
+                    <button onClick={() => window.open('https://labs.google/fx/pt/tools/whisk', '_blank')} className="secondary-button">
+                        Testar no Whisk ↗️
+                    </button>
+                </div>
                 <hr />
-                <MotionPromptTool imagePrompts={imagePrompts} />
+                <MotionPromptTool imagePrompts={imagePrompts} setNotification={setNotification} />
             </div>
         )}
       </main>
