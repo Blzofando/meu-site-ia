@@ -15,7 +15,7 @@ function App() {
 
     try {
       // 2. Chama o "garçom" (nossa função)
-      const response = await fetch('/.netlify/functions/generateRoteiro', {
+      const response = await fetch('https://meu-site-ia-api.onrender.com/api/generate-roteiro', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
