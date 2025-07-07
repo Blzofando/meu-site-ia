@@ -2,47 +2,60 @@ import { useState } from 'react'
 import './App.css'
 
 function App() {
-  // Nossos estados: para o tema, para o roteiro final, e para saber se está carregando.
   const [tema, setTema] = useState('');
   const [roteiro, setRoteiro] = useState('');
-  const [carregando, setCarregando] = useState(false);
+  const [audioUrl, setAudioUrl] = useState(''); // NOVO: Para guardar a URL do áudio
+  const [gerandoRoteiro, setGerandoRoteiro] = useState(false);
+  const [gerandoAudio, setGerandoAudio] = useState(false); // NOVO: Para o loading do áudio
 
-  // A função que agora chama nossa Netlify Function!
-  const handleGenerate = async () => {
-    // 1. Avisa que estamos carregando
-    setCarregando(true);
-    setRoteiro(''); // Limpa o roteiro anterior
+  const handleGenerateRoteiro = async () => {
+    setGerandoRoteiro(true);
+    setRoteiro('');
+    setAudioUrl(''); // Limpa o áudio anterior
 
     try {
-      // 2. Chama o "garçom" (nossa função)
       const response = await fetch('https://meu-site-ia-api.onrender.com/api/generate-roteiro', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        // 3. Envia o "pedido" (o tema) para o garçom
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ tema }),
       });
-
-      // Se o garçom não trouxe um prato bom, avisa o erro.
-      if (!response.ok) {
-        throw new Error('A resposta da rede não foi boa.');
-      }
-
-      // 4. Pega o "prato" (o roteiro) que o garçom trouxe
+      if (!response.ok) throw new Error('Erro na API de roteiro');
       const data = await response.json();
-      
-      // 5. Coloca o roteiro na nossa "memória" para exibir na tela
       setRoteiro(data.roteiro);
-
     } catch (error) {
       console.error('Erro ao gerar roteiro:', error);
-      alert('Desculpe, houve um erro ao gerar seu roteiro. Tente novamente.');
+      alert('Desculpe, houve um erro ao gerar seu roteiro.');
     } finally {
-      // 6. Avisa que terminamos de carregar, não importa se deu certo ou errado
-      setCarregando(false);
+      setGerandoRoteiro(false);
     }
   };
+
+  // NOVA FUNÇÃO PARA O BOTÃO DE ÁUDIO
+  const handleGenerateAudio = async () => {
+    setGerandoAudio(true);
+    setAudioUrl('');
+
+    try {
+      const response = await fetch('https://meu-site-ia-api.onrender.com/api/generate-audio', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ texto: roteiro }), // Envia o roteiro gerado
+      });
+      if (!response.ok) throw new Error('Erro na API de áudio');
+      
+      // Converte a resposta (que é um arquivo) para um formato que o navegador entende
+      const audioBlob = await response.blob();
+      const url = URL.createObjectURL(audioBlob);
+      setAudioUrl(url);
+
+    } catch (error) {
+      console.error('Erro ao gerar áudio:', error);
+      alert('Desculpe, houve um erro ao gerar seu áudio.');
+    } finally {
+      setGerandoAudio(false);
+    }
+  };
+
 
   return (
     <>
@@ -53,33 +66,48 @@ function App() {
         <textarea
           id="tema"
           rows="4"
-          placeholder="Ex: A história bizarra do garfo e como a igreja o considerava um objeto do diabo."
+          placeholder="Ex: A história bizarra do garfo..."
           value={tema}
           onChange={(e) => setTema(e.target.value)}
         />
         <button 
           className="generate-button" 
-          onClick={handleGenerate} 
-          disabled={carregando} // Desabilita o botão enquanto carrega
+          onClick={handleGenerateRoteiro} 
+          disabled={gerandoRoteiro}
         >
-          {carregando ? 'Gerando...' : 'Gerar Roteiro!'}
+          {gerandoRoteiro ? 'Gerando...' : 'Gerar Roteiro!'}
         </button>
       </div>
 
-      {/* Área de Resultado */}
       <div className="result-container">
-        {/* Se estiver carregando, mostra a mensagem */}
-        {carregando && <p className="loading-message">Gerando seu roteiro, aguarde...</p>}
+        {gerandoRoteiro && <p className="loading-message">Analisando os anais da história...</p>}
         
-        {/* Se já tiver um roteiro, mostra a caixa de resultado */}
         {roteiro && (
           <div className="roteiro-result">
             <h3>Seu Roteiro:</h3>
-            <textarea readOnly value={roteiro} rows="20" />
+            <textarea readOnly value={roteiro} rows="15" />
             <div className="result-actions">
               <button>Copiar Roteiro</button>
-              <button className="principal">Próximo Passo: Gerar Áudio</button>
+              {/* Botão de áudio agora funciona! */}
+              <button 
+                className="principal" 
+                onClick={handleGenerateAudio}
+                disabled={gerandoAudio}
+              >
+                {gerandoAudio ? 'Narrando...' : 'Próximo Passo: Gerar Áudio'}
+              </button>
             </div>
+
+            {/* Player de áudio que só aparece quando o áudio está pronto */}
+            {gerandoAudio && <p className="loading-message">Preparando o locutor das trevas...</p>}
+            {audioUrl && (
+              <div className="audio-player-container">
+                <h4>Sua Narração:</h4>
+                <audio controls src={audioUrl}>
+                  Seu navegador não suporta o elemento de áudio.
+                </audio>
+              </div>
+            )}
           </div>
         )}
       </div>
