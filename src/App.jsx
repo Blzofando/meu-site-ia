@@ -1,18 +1,18 @@
 import { useState, useEffect } from 'react';
 import './App.css';
 
-// --- Componentes de UI ---
+// --- Componentes de UI Auxiliares ---
 
-// Notificação de "Copiado!"
+// Componente para a notificação "Copiado!"
 function Notification({ message, onDismiss }) {
   useEffect(() => {
-    const timer = setTimeout(() => onDismiss(), 3000);
+    const timer = setTimeout(() => onDismiss(), 3000); // Some após 3 segundos
     return () => clearTimeout(timer);
   }, [onDismiss]);
   return <div className="notification">{message}</div>;
 }
 
-// Botão de Copiar
+// Componente para o botão de Copiar individual
 function CopyButton({ textToCopy }) {
   const [notification, setNotification] = useState('');
   
@@ -37,7 +37,7 @@ function CopyButton({ textToCopy }) {
 
 // --- Ferramentas Principais ---
 
-// Ferramenta de Geração de Roteiro
+// 1. Ferramenta de Geração de Roteiro
 function RoteiroTool({ onRoteiroGenerated }) {
   const [tema, setTema] = useState('');
   const [gerandoRoteiro, setGerandoRoteiro] = useState(false);
@@ -74,7 +74,7 @@ function RoteiroTool({ onRoteiroGenerated }) {
         <textarea
           id="tema"
           rows="4"
-          placeholder="Ex: A história bizarra do garfo e como a igreja o considerava um objeto do diabo."
+          placeholder="Ex: A história bizarra do garfo..."
           value={tema}
           onChange={(e) => setTema(e.target.value)}
         />
@@ -91,7 +91,7 @@ function RoteiroTool({ onRoteiroGenerated }) {
   );
 }
 
-// Ferramenta de Geração de Prompts de Imagem
+// 2. Ferramenta de Geração de Prompts de Imagem
 function ImagePromptTool({ roteiro }) {
   const [prompts, setPrompts] = useState('');
   const [gerandoPrompts, setGerandoPrompts] = useState(false);
@@ -122,24 +122,19 @@ function ImagePromptTool({ roteiro }) {
     }
   };
 
-  // Função para parsear e renderizar os prompts
+  // Função para formatar e renderizar os prompts
   const renderPrompts = () => {
     if (!prompts) return null;
-    
-    // Divide o texto em blocos de "Take"
     const takes = prompts.split('Take ').slice(1);
-
     return takes.map((takeBlock, index) => {
-      // Divide cada bloco em linhas
       const lines = takeBlock.trim().split('\n');
       const takeTitle = `Take ${lines[0]}`;
       const promptLines = lines.slice(1);
-
       return (
         <div key={index} className="take-container">
           <h4>{takeTitle}</h4>
           {promptLines.map((promptLine, pIndex) => {
-            const promptText = promptLine.replace('— Prompt ' + (pIndex + 1) + ': ', '').trim();
+            const promptText = promptLine.replace(/— Prompt \d: /, '').trim();
             const fullPromptToCopy = `${promptText}, ${styleSuffix}`;
             return (
               <div key={pIndex} className="prompt-item">
@@ -156,47 +151,76 @@ function ImagePromptTool({ roteiro }) {
   return (
     <div className="tool-container">
       <h2>2. Gerar Prompts de Imagem</h2>
-      <div className="actions-container">
-        <button onClick={handleGeneratePrompts} disabled={gerandoPrompts} className="principal">
-          {gerandoPrompts ? 'Criando Arte...' : 'Gerar Prompts para este Roteiro'}
-        </button>
-        <button onClick={() => window.open('https://labs.google/fx/pt/tools/whisk', '_blank')} className="secondary-button">
-          Abrir Whisk ↗️
-        </button>
-      </div>
+      <button onClick={handleGeneratePrompts} disabled={gerandoPrompts} className="principal">
+        {gerandoPrompts ? 'Criando Arte...' : 'Gerar Prompts para este Roteiro'}
+      </button>
       {erro && <div className="error-message">{erro}</div>}
       {gerandoPrompts && <p className="loading-message">Consultando os mestres da arte...</p>}
+      
+      {/* O resultado dos prompts só aparece quando eles são gerados */}
       {prompts && (
         <div className="prompts-result">
           <h3>Prompts Gerados:</h3>
           {renderPrompts()}
+          {/* O botão do Whisk só aparece DEPOIS que os prompts são gerados */}
+          <div className="actions-container">
+             <button onClick={() => window.open('https://labs.google/fx/pt/tools/whisk', '_blank')} className="secondary-button">
+                Testar no Whisk ↗️
+             </button>
+          </div>
         </div>
       )}
     </div>
   );
 }
 
-
 // --- Componente Principal do App ---
 function App() {
   const [roteiro, setRoteiro] = useState('');
+  const [notification, setNotification] = useState('');
+
+  // Função que copia o roteiro E as instruções, e redireciona
+  const handleAudioRedirect = () => {
+    if (!roteiro) return;
+    const styleInstruction = "Narre o texto abaixo com voz jovem, envolvente e expressiva. Use tom de surpresa e curiosidade nos takes, variando a intensidade para destacar o absurdo das situações. Comece com energia e entusiasmo no hook da introdução e termine de forma descontraída, incentivando a participação do público no encerramento.";
+    const textToCopy = `[COLE ISTO NO CAMPO "STYLE INSTRUCTIONS"]\n${styleInstruction}\n\n[COLE ISTO NO CAMPO PRINCIPAL DE TEXTO]\n${roteiro}`;
+    
+    navigator.clipboard.writeText(textToCopy).then(() => {
+      setNotification('Roteiro e instruções copiados!');
+    }).catch(err => {
+      console.error('Erro ao copiar:', err);
+      setNotification('Erro ao copiar.');
+    });
+
+    const aiStudioUrl = `https://aistudio.google.com/generate/speech`;
+    window.open(aiStudioUrl, '_blank');
+  };
 
   return (
     <>
+      {notification && <Notification message={notification} onDismiss={() => setNotification('')} />}
       <header>
         <h1>Criador de Conteúdo IA</h1>
       </header>
       <main>
+        {/* Ferramenta de Roteiro sempre visível */}
         <RoteiroTool onRoteiroGenerated={setRoteiro} />
+        
+        {/* Seção de Ações do Roteiro (só aparece quando o roteiro existe) */}
         {roteiro && (
-          <>
-            <div className="roteiro-display">
-              <h3>Roteiro Gerado:</h3>
-              <textarea readOnly value={roteiro} rows="10" />
+          <div className="roteiro-display">
+            <h3>Roteiro Gerado:</h3>
+            <textarea readOnly value={roteiro} rows="10" />
+            <div className="result-actions">
+              {/* Botão para o áudio, que usa a função de redirecionar */}
+              <button onClick={handleAudioRedirect} className="secondary-button">
+                Gerar Áudio no AI Studio ↗️
+              </button>
             </div>
             <hr />
+            {/* Ferramenta de Prompts de Imagem (só aparece quando o roteiro existe) */}
             <ImagePromptTool roteiro={roteiro} />
-          </>
+          </div>
         )}
       </main>
       <footer>
