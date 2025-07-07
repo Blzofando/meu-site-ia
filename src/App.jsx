@@ -7,11 +7,13 @@ function App() {
   const [audioUrl, setAudioUrl] = useState(''); // NOVO: Para guardar a URL do áudio
   const [gerandoRoteiro, setGerandoRoteiro] = useState(false);
   const [gerandoAudio, setGerandoAudio] = useState(false); // NOVO: Para o loading do áudio
+  const [erro, setErro] = useState(null); // NOVO: Para armazenar erros de forma amigável
 
   const handleGenerateRoteiro = async () => {
     setGerandoRoteiro(true);
     setRoteiro('');
     setAudioUrl(''); // Limpa o áudio anterior
+    setErro(null); // Limpa mensagens de erro anteriores
 
     try {
       const response = await fetch('https://meu-site-ia-api.onrender.com/api/generate-roteiro', {
@@ -24,7 +26,7 @@ function App() {
       setRoteiro(data.roteiro);
     } catch (error) {
       console.error('Erro ao gerar roteiro:', error);
-      alert('Desculpe, houve um erro ao gerar seu roteiro.');
+      setErro('Desculpe, houve um erro ao gerar seu roteiro. Tente novamente.');
     } finally {
       setGerandoRoteiro(false);
     }
@@ -34,6 +36,7 @@ function App() {
   const handleGenerateAudio = async () => {
     setGerandoAudio(true);
     setAudioUrl('');
+    setErro(null); // Limpa mensagens de erro anteriores
 
     try {
       const response = await fetch('https://meu-site-ia-api.onrender.com/api/generate-audio', {
@@ -50,12 +53,11 @@ function App() {
 
     } catch (error) {
       console.error('Erro ao gerar áudio:', error);
-      alert('Desculpe, houve um erro ao gerar seu áudio.');
+      setErro('Desculpe, houve um erro ao gerar seu áudio. Tente novamente.');
     } finally {
       setGerandoAudio(false);
     }
   };
-
 
   return (
     <>
@@ -78,6 +80,8 @@ function App() {
           {gerandoRoteiro ? 'Gerando...' : 'Gerar Roteiro!'}
         </button>
       </div>
+
+      {erro && <div className="error-message">{erro}</div>}
 
       <div className="result-container">
         {gerandoRoteiro && <p className="loading-message">Analisando os anais da história...</p>}
@@ -115,4 +119,4 @@ function App() {
   )
 }
 
-export default App
+export default App;
