@@ -179,7 +179,7 @@ function App() {
       setNotification('Erro ao copiar.');
     });
 
-    const aiStudioUrl = `https://aistudio.google.com/generate/speech`;
+    const aiStudioUrl = `https://aistudio.google.com/generate-speech`;
     window.open(aiStudioUrl, '_blank');
   };
 
