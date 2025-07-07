@@ -151,3 +151,238 @@ footer {
   color: var(--cor-texto-secundario);
   margin: 0;
 }
+/* --- Estilos da Página de Workflow --- */
+.workflow-container {
+  width: 100%;
+  text-align: left;
+}
+
+.workflow-nav button {
+  background: none;
+  border: none;
+  color: var(--cor-acento-principal);
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.5rem 0;
+  margin-bottom: 2rem;
+}
+
+.workflow-nav button:hover {
+  text-decoration: underline;
+}
+
+.workflow-container h1 {
+  font-family: var(--fonte-titulo);
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.workflow-step {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--cor-borda);
+}
+
+.roteiro-display, .image-prompts-display {
+    margin-top: 1.5rem;
+}
+
+/* --- Estilos dos Componentes (já existentes, mas revisados) --- */
+
+.tool-container {
+  background-color: var(--cor-fundo-container);
+  padding: 2rem;
+  border-radius: 8px;
+  border: 1px solid var(--cor-borda);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  text-align: left;
+  margin-bottom: 2rem;
+}
+
+h2, h3 {
+  font-family: var(--fonte-titulo);
+  color: var(--cor-acento-principal);
+  border-bottom: 1px solid var(--cor-borda);
+  padding-bottom: 0.5rem;
+  margin-top: 0;
+}
+
+h4 {
+    font-family: var(--fonte-titulo);
+    font-size: 1.4rem;
+    color: var(--cor-texto-principal);
+}
+
+h5 {
+    font-family: var(--fonte-corpo);
+    font-weight: 500;
+    color: var(--cor-acento-principal);
+    margin-bottom: 0.5rem;
+}
+
+.form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+label {
+  font-weight: 500;
+  font-size: 1.1rem;
+}
+
+textarea {
+  width: 100%;
+  padding: 0.8rem;
+  border-radius: 4px;
+  border: 1px solid var(--cor-borda);
+  background-color: #333;
+  color: var(--cor-texto-principal);
+  font-family: var(--fonte-corpo);
+  font-size: 1rem;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+textarea:focus {
+  outline: none;
+  border-color: var(--cor-acento-principal);
+  box-shadow: 0 0 5px var(--cor-acento-principal);
+}
+
+textarea[readOnly] {
+    background-color: #2a2a2a;
+    border-style: dashed;
+}
+
+button {
+  padding: 0.8rem 1.5rem;
+  border-radius: 5px;
+  border: none;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  font-family: var(--fonte-corpo);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+button.principal {
+  background-color: var(--cor-acento-principal);
+  color: var(--cor-fundo);
+  align-self: flex-start; /* Alinha o botão à esquerda no container */
+}
+
+button.principal:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(180, 140, 44, 0.3);
+}
+
+button.secondary-button {
+  background-color: transparent;
+  color: var(--cor-acento-principal);
+  border: 1px solid var(--cor-acento-principal);
+}
+
+button.secondary-button:hover:not(:disabled) {
+  background-color: var(--cor-acento-principal);
+  color: var(--cor-fundo);
+}
+
+.copy-button {
+    padding: 0.3rem 0.8rem;
+    font-size: 0.8rem;
+    background-color: #444;
+    color: #ddd;
+    margin-left: 1rem;
+}
+
+.copy-button:hover:not(:disabled) {
+    background-color: var(--cor-sucesso);
+    color: white;
+}
+
+.result-actions, .actions-container {
+    margin-top: 1rem;
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.prompts-result {
+  margin-top: 1.5rem;
+}
+
+.take-container {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--cor-borda);
+}
+.take-container:last-child {
+    border-bottom: none;
+}
+
+.prompt-item, .motion-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem;
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+}
+.prompt-item:nth-child(odd), .motion-item:nth-child(odd) {
+    background-color: rgba(0,0,0,0.1);
+}
+
+.prompt-group {
+    background-color: rgba(0,0,0,0.2);
+    padding: 1rem;
+    border-radius: 5px;
+    margin-bottom: 1rem;
+    border-left: 3px solid var(--cor-acento-principal);
+}
+
+.prompt-group p {
+    margin: 0.5rem 0;
+}
+
+.loading-message {
+  font-style: italic;
+  color: var(--cor-texto-secundario);
+}
+
+.error-message {
+  background-color: var(--cor-erro);
+  color: white;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-top: 1rem;
+  text-align: center;
+  font-weight: 500;
+}
+
+.notification {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--cor-sucesso);
+  color: white;
+  padding: 14px 20px;
+  border-radius: 8px;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  font-weight: 500;
+  animation: fadeInOut 3s forwards;
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translate(-50%, -20px); }
+  15% { opacity: 1; transform: translate(-50%, 0); }
+  85% { opacity: 1; transform: translate(-50%, 0); }
+  100% { opacity: 0; transform: translate(-50%, -20px); }
+}
