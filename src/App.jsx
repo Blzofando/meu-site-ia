@@ -1,41 +1,38 @@
 import { useState, useEffect } from 'react';
 import './App.css';
 
-// --- Componente de UI: Notificação ---
-// Um pop-up que aparece e some sozinho.
+// --- Componentes de UI Auxiliares ---
+
 function Notification({ message, onDismiss }) {
   useEffect(() => {
-    const timer = setTimeout(() => onDismiss(), 2500); // A notificação some após 2.5 segundos
+    const timer = setTimeout(() => onDismiss(), 3000);
     return () => clearTimeout(timer);
   }, [onDismiss]);
-
   return <div className="notification">{message}</div>;
 }
 
-// --- Componente de UI: Botão de Copiar ---
-// Um botão reutilizável que copia um texto e ativa a notificação.
 function CopyButton({ textToCopy, onCopy }) {
   const handleCopy = () => {
     navigator.clipboard.writeText(textToCopy).then(() => {
-      onCopy('Copiado!'); // Avisa o componente pai que a cópia foi um sucesso
+      onCopy('Copiado!');
     }).catch(err => {
       console.error('Erro ao copiar:', err);
-      onCopy('Erro ao copiar.'); // Avisa que deu erro
+      onCopy('Erro ao copiar.');
     });
   };
-
   return <button onClick={handleCopy} className="copy-button">Copiar</button>;
 }
 
+// --- Ferramentas Principais ---
 
-// --- Ferramenta 1: Gerador de Roteiro ---
+// Ferramenta 1: Gerador de Roteiro
 function RoteiroTool({ onRoteiroGenerated }) {
   const [tema, setTema] = useState('');
-  const [gerandoRoteiro, setGerandoRoteiro] = useState(false);
+  const [gerando, setGerando] = useState(false);
   const [erro, setErro] = useState(null);
 
-  const handleGenerateRoteiro = async () => {
-    setGerandoRoteiro(true);
+  const handleGenerate = async () => {
+    setGerando(true);
     setErro(null);
     try {
       const response = await fetch('https://meu-site-ia-api.onrender.com/api/generate-roteiro', {
@@ -43,17 +40,14 @@ function RoteiroTool({ onRoteiroGenerated }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ tema }),
       });
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Erro na API de roteiro');
-      }
+      if (!response.ok) throw new Error('Erro na API de roteiro');
       const data = await response.json();
       onRoteiroGenerated(data.roteiro);
     } catch (error) {
-      console.error('Erro ao gerar roteiro:', error);
-      setErro('Desculpe, houve um erro ao gerar seu roteiro. Tente novamente ou aguarde alguns minutos.');
+      console.error(error);
+      setErro('Desculpe, houve um erro ao gerar seu roteiro.');
     } finally {
-      setGerandoRoteiro(false);
+      setGerando(false);
     }
   };
 
@@ -62,19 +56,9 @@ function RoteiroTool({ onRoteiroGenerated }) {
       <h2>1. Gerar Roteiro</h2>
       <div className="form-container">
         <label htmlFor="tema">Descreva o tema do seu vídeo:</label>
-        <textarea
-          id="tema"
-          rows="4"
-          placeholder="Ex: A história bizarra do garfo..."
-          value={tema}
-          onChange={(e) => setTema(e.target.value)}
-        />
-        <button 
-          className="generate-button principal" 
-          onClick={handleGenerateRoteiro} 
-          disabled={gerandoRoteiro}
-        >
-          {gerandoRoteiro ? 'Gerando...' : 'Gerar Roteiro'}
+        <textarea id="tema" rows="4" placeholder="Ex: A história bizarra do garfo..." value={tema} onChange={(e) => setTema(e.target.value)} />
+        <button className="generate-button principal" onClick={handleGenerate} disabled={gerando}>
+          {gerando ? 'Gerando...' : 'Gerar Roteiro'}
         </button>
       </div>
       {erro && <div className="error-message">{erro}</div>}
@@ -82,16 +66,13 @@ function RoteiroTool({ onRoteiroGenerated }) {
   );
 }
 
-// --- Ferramenta 2: Gerador de Prompts de Imagem ---
-function ImagePromptTool({ roteiro, setNotification }) {
-  const [prompts, setPrompts] = useState('');
-  const [gerandoPrompts, setGerandoPrompts] = useState(false);
+// Ferramenta 2: Gerador de Prompts de Imagem
+function ImagePromptTool({ roteiro, onPromptsGenerated }) {
+  const [gerando, setGerando] = useState(false);
   const [erro, setErro] = useState(null);
 
-  const styleSuffix = "Masterpiece, melhor qualidade, ultra-detalhado, ilustração profissional, arte de linha (line art) limpa e intrincada, estilo de anime maduro e cinematográfico, sombreamento cel-shaded com gradientes suaves, iluminação dramática de chiaroscuro, paleta de cores quentes com tons dourados e sépia, estética vintage dos anos 1940, textura visível nos tecidos e superfícies, composição de ângulo dinâmico.";
-
-  const handleGeneratePrompts = async () => {
-    setGerandoPrompts(true);
+  const handleGenerate = async () => {
+    setGerando(true);
     setErro(null);
     try {
       const response = await fetch('https://meu-site-ia-api.onrender.com/api/generate-image-prompts', {
@@ -99,23 +80,110 @@ function ImagePromptTool({ roteiro, setNotification }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ roteiro }),
       });
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Erro na API de prompts');
-      }
+      if (!response.ok) throw new Error('Erro na API de prompts de imagem');
       const data = await response.json();
-      setPrompts(data.prompts);
+      onPromptsGenerated(data.prompts);
     } catch (error) {
-      console.error('Erro ao gerar prompts:', error);
-      setErro('Desculpe, houve um erro ao gerar os prompts.');
+      console.error(error);
+      setErro('Desculpe, houve um erro ao gerar os prompts de imagem.');
     } finally {
-      setGerandoPrompts(false);
+      setGerando(false);
     }
   };
 
-  const renderPrompts = () => {
-    if (!prompts) return null;
-    const takes = prompts.split('Take ').slice(1);
+  return (
+    <div className="tool-container">
+      <h3>Próximo Passo: Imagens</h3>
+      <button onClick={handleGenerate} disabled={gerando} className="principal">
+        {gerando ? 'Criando Arte...' : 'Gerar Prompts de Imagem'}
+      </button>
+      {gerando && <p className="loading-message">Consultando os mestres da arte...</p>}
+      {erro && <div className="error-message">{erro}</div>}
+    </div>
+  );
+}
+
+// Ferramenta 3: Gerador de Prompts de Movimento
+function MotionPromptTool({ imagePrompts }) {
+  const [motionPrompts, setMotionPrompts] = useState('');
+  const [gerando, setGerando] = useState(false);
+  const [erro, setErro] = useState(null);
+
+  const handleGenerate = async () => {
+    setGerando(true);
+    setErro(null);
+    try {
+      const response = await fetch('https://meu-site-ia-api.onrender.com/api/generate-motion-prompts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ imagePrompts }),
+      });
+      if (!response.ok) throw new Error('Erro na API de prompts de movimento');
+      const data = await response.json();
+      setMotionPrompts(data.motionPrompts);
+    } catch (error) {
+      console.error(error);
+      setErro('Desculpe, houve um erro ao gerar os prompts de movimento.');
+    } finally {
+      setGerando(false);
+    }
+  };
+  
+  const renderMotionPrompts = () => {
+    if (!motionPrompts) return null;
+    return <textarea readOnly value={motionPrompts} rows="20" className="full-width-textarea" />;
+  };
+
+  return (
+    <div className="tool-container">
+      <h3>Último Passo: Movimento</h3>
+      <button onClick={handleGenerate} disabled={gerando} className="principal">
+        {gerando ? 'Animando Cenas...' : 'Gerar Prompts de Movimento'}
+      </button>
+      {gerando && <p className="loading-message">Coreografando a cena...</p>}
+      {erro && <div className="error-message">{erro}</div>}
+      {motionPrompts && (
+        <div className="prompts-result">
+          <h3>Prompts de Movimento Gerados:</h3>
+          {renderMotionPrompts()}
+          <div className="actions-container">
+             <button onClick={() => window.open('https://labs.google/fx/pt/tools/whisk', '_blank')} className="secondary-button">
+                Testar no Whisk ↗️
+             </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+// --- Componente Principal do App ---
+function App() {
+  const [roteiro, setRoteiro] = useState('');
+  const [imagePrompts, setImagePrompts] = useState('');
+  const [notification, setNotification] = useState('');
+
+  const handleAudioRedirect = () => {
+    if (!roteiro) return;
+    const styleInstruction = "Narre o texto abaixo com voz jovem, envolvente e expressiva. Use tom de surpresa e curiosidade nos takes, variando a intensidade para destacar o absurdo das situações. Comece com energia e entusiasmo no hook da introdução e termine de forma descontraída, incentivando a participação do público no encerramento.";
+    const textToCopy = `[COLE ISTO NO CAMPO "STYLE INSTRUCTIONS"]\n${styleInstruction}\n\n[COLE ISTO NO CAMPO PRINCIPAL DE TEXTO]\n${roteiro}`;
+    
+    navigator.clipboard.writeText(textToCopy).then(() => {
+      setNotification('Roteiro e instruções copiados!');
+    }).catch(err => {
+      console.error('Erro ao copiar:', err);
+      setNotification('Erro ao copiar.');
+    });
+
+    const aiStudioUrl = `https://aistudio.google.com/generate-speech`;
+    window.open(aiStudioUrl, '_blank');
+  };
+  
+  const renderImagePrompts = () => {
+    if (!imagePrompts) return null;
+    const styleSuffix = "Masterpiece, melhor qualidade, ultra-detalhado, ilustração profissional, arte de linha (line art) limpa e intrincada, estilo de anime maduro e cinematográfico, sombreamento cel-shaded com gradientes suaves, iluminação dramática de chiaroscuro, paleta de cores quentes com tons dourados e sépia, estética vintage dos anos 1940, textura visível nos tecidos e superfícies, composição de ângulo dinâmico.";
+    const takes = imagePrompts.split('Take ').slice(1);
     return takes.map((takeBlock, index) => {
       const lines = takeBlock.trim().split('\n');
       const takeTitle = `Take ${lines[0]}`;
@@ -139,58 +207,13 @@ function ImagePromptTool({ roteiro, setNotification }) {
   };
 
   return (
-    <div className="tool-container">
-      <h2>2. Gerar Prompts de Imagem</h2>
-      <button onClick={handleGeneratePrompts} disabled={gerandoPrompts} className="principal">
-        {gerandoPrompts ? 'Criando Arte...' : 'Gerar Prompts para este Roteiro'}
-      </button>
-      {erro && <div className="error-message">{erro}</div>}
-      {gerandoPrompts && <p className="loading-message">Consultando os mestres da arte...</p>}
-      
-      {prompts && (
-        <div className="prompts-result">
-          <h3>Prompts Gerados:</h3>
-          {renderPrompts()}
-          <div className="actions-container">
-             <button onClick={() => window.open('https://labs.google/fx/pt/tools/whisk', '_blank')} className="secondary-button">
-                Testar no Whisk ↗️
-             </button>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// --- Componente Principal do App ---
-function App() {
-  const [roteiro, setRoteiro] = useState('');
-  const [notification, setNotification] = useState('');
-
-  const handleAudioRedirect = () => {
-    if (!roteiro) return;
-    const styleInstruction = "Narre o texto abaixo com voz jovem, envolvente e expressiva. Use tom de surpresa e curiosidade nos takes, variando a intensidade para destacar o absurdo das situações. Comece com energia e entusiasmo no hook da introdução e termine de forma descontraída, incentivando a participação do público no encerramento.";
-    const textToCopy = `[COLE ISTO NO CAMPO "STYLE INSTRUCTIONS"]\n${styleInstruction}\n\n[COLE ISTO NO CAMPO PRINCIPAL DE TEXTO]\n${roteiro}`;
-    
-    navigator.clipboard.writeText(textToCopy).then(() => {
-      setNotification('Roteiro e instruções copiados!');
-    }).catch(err => {
-      console.error('Erro ao copiar:', err);
-      setNotification('Erro ao copiar.');
-    });
-
-    const aiStudioUrl = `https://aistudio.google.com/generate-speech`;
-    window.open(aiStudioUrl, '_blank');
-  };
-
-  return (
     <>
       {notification && <Notification message={notification} onDismiss={() => setNotification('')} />}
       <header>
         <h1>Criador de Conteúdo IA</h1>
       </header>
       <main>
-        <RoteiroTool onRoteiroGenerated={setRoteiro} />
+        <RoteiroTool onRoteiroGenerated={(r) => { setRoteiro(r); setImagePrompts(''); }} />
         
         {roteiro && (
           <div className="roteiro-display">
@@ -202,8 +225,17 @@ function App() {
               </button>
             </div>
             <hr />
-            <ImagePromptTool roteiro={roteiro} setNotification={setNotification} />
+            <ImagePromptTool roteiro={roteiro} onPromptsGenerated={setImagePrompts} />
           </div>
+        )}
+
+        {imagePrompts && (
+            <div className="image-prompts-display">
+                <h3>Prompts de Imagem Gerados:</h3>
+                {renderImagePrompts()}
+                <hr />
+                <MotionPromptTool imagePrompts={imagePrompts} />
+            </div>
         )}
       </main>
       <footer>
